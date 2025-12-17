@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: healthcare
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    env_file:
+      - ./auth-service/.env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3001:3001"
+
+  schedule-service:
+    build: ./schedule-service
+    container_name: schedule-service
+    env_file:
+      - ./schedule-service/.env
+    depends_on:
+      - postgres
+      - redis
+      - auth-service
+    ports:
+      - "3002:3002"
+
+  schedule-worker:
+    build: ./schedule-service
+    container_name: schedule-worker
+    command: node dist/src/worker/worker.mail.js
+    env_file:
+      - ./schedule-service/.env
+    depends_on:
+      - redis
+      - postgres
+
+volumes:
+  pgdata:
+
