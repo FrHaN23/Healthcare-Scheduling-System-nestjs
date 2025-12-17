@@ -9,28 +9,28 @@ This project is implemented as a **monorepo** with multiple services, containeri
 ## Architecture Overview
 
 ```
-      Client
-        |
-        v
-    [GraphQL API]
-        |
-    +---+---+
-    |       |
-   Auth  Schedule ──> Email Queue ──> Worker (Send Email)
-    |       |
-    +---+---+
-        |
-        v
-    Database
+          Client
+            |
+            v
+      [GraphQL API]
+            |
+    +-------+-------+
+    |               |
+auth-service  schedule-service --> Email Queue --> schedule-worker (Send Email)
+    |               |
+    +-------+-------+
+            |
+            v
+        Database
 ```
 
 ---
-----|-------------|
-| auth-service | Handles user registration, login, JWT issuance, and token validation |
-| schedule-service | Manages doctors, customers, schedules, and triggers email notifications |
-| schedule-worker | Background worker (BullMQ) for sending emails |
-| postgres | Primary relational database |
-| redis | Cache + queue backend |
+
+- auth-service: Handles user registration, login, JWT issuance, and token validation
+- schedule-service: Manages doctors, customers, schedules, and triggers email notifications
+- schedule-worker: Background worker (BullMQ) for sending emails
+- postgres: Primary relational database
+= redis: Cache + queue backend
 
 ---
 
