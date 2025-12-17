@@ -199,13 +199,33 @@ export class ScheduleService {
       throw new NotFoundException('Schedule not found');
     }
 
-    const deleted: PrismaSchedule =
+    const deleted: ScheduleRelations =
       await this.prisma.schedule.delete({
         where: { id },
+        include: {
+          doctor: true,
+          customer: true,
+        },
       });
 
     const cacheKey = `${this.cacheServiceKey}:${id}`;
     await this.cache.del(cacheKey)
+
+    await this.emailQueue.add('send-email', {
+      to: deleted.customer.email,
+      subject: 'Appointment has been dismiss',
+      body: `Your appointment with Dr. ${deleted.doctor.name} at ${deleted.scheduledAt.toString()} has been dismiss`,
+    },
+      {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    );
 
     return deleted;
   }
