@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID, GraphQLISODateTime } from '@nestjs/graphql';
 import { Customer } from '../customer/customer.model';
 import { Doctor } from '../doctor/doctor.model';
 
@@ -12,7 +12,7 @@ export class Schedule {
   @Field()
   objective: string;
 
-  @Field()
+  @Field(() => GraphQLISODateTime)
   scheduledAt: Date;
 
   @Field(() => Customer)
@@ -21,9 +21,9 @@ export class Schedule {
   @Field(() => Doctor)
   doctor?: Doctor;
 
-  @Field()
+  @Field(() => GraphQLISODateTime)
   createdAt: Date;
 
-  @Field()
+  @Field(() => GraphQLISODateTime)
   updatedAt: Date;
 }

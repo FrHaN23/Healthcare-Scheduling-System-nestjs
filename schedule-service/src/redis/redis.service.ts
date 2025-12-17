@@ -76,7 +76,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       if (!value) return null;
 
       try {
-        return JSON.parse(value); // eslint-disable-line
+        return JSON.parse(value, (_key, val) => {
+          // iso date
+          if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
+            return new Date(val);
+          }
+          return val as unknown;
+        }) as T;
       } catch {
         return value as T;
       }

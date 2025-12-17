@@ -79,7 +79,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
       try {
         // Try to parse JSON string back to object
-        return JSON.parse(value); // eslint-disable-line
+        return JSON.parse(value, (_key, val) => {
+          // iso date
+          if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(val)) {
+            return new Date(val);
+          }
+          return val as unknown;
+        }) as T;
       } catch {
         // If parsing fails, just return the raw string value
         return value as T;
